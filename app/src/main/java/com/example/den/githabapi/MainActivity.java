@@ -3,6 +3,7 @@ package com.example.den.githabapi;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private int count;
     private String searchText;
     private Handler mHandler = new Handler();
+    private String BASE_URL = "https://api.github.com";
+    private GitHubClientInterface client;
+    private String access_token;
+    private int timeDelayedRequest = 1500;
+
     private Runnable mFilterTask = new Runnable() {
         @Override
         public void run() {
@@ -64,12 +71,16 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         utils = new AuthorizationUtils();
-        //если пользователь не авторизован
+
+        //if the user is not authorized
         if (!utils.isAuthorized(this)) {
             onLogout();
             return;
         }
+        install();
+    }
 
+    private void install() {
         editText.addTextChangedListener(new TextWatcher() {//слушатель изменения текста
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -84,53 +95,59 @@ public class MainActivity extends AppCompatActivity {
                 searchText = editable.toString();
                 if (searchText.length() > 2) {
                     mHandler.removeCallbacks(mFilterTask);
-                    mHandler.postDelayed(mFilterTask, 1500);
+                    mHandler.postDelayed(mFilterTask, timeDelayedRequest);
                 }
             }
         });
-    }
-
-    private void start(String name) {
-        count = 0;
-        allOrganizations.clear();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        GitHubClientInterface client = retrofit.create(GitHubClientInterface.class);
-        String access_token = utils.restore(MainActivity.this);
-        Call<ResponseBody> call = client.getResponse("/search/users?access_token=" + access_token + "&q=" + name + "%20in:login+type:org");
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, final Response<ResponseBody> response) {
-                try {
-                    String result = response.body().string();
-                    createListFromJson(result);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Ошибка запроса", Toast.LENGTH_LONG).show();
-            }
-        });
+        client = retrofit.create(GitHubClientInterface.class);
+        access_token = utils.restore(MainActivity.this);
     }
 
-    private void createListFromJson(String result) {
+    private void start(String name) {
+        if (InternetConnection.checkConnection(getApplicationContext())) {
+            progressBar.setVisibility(View.VISIBLE);
+            count = 0;
+            allOrganizations.clear();
+
+            Call<ResponseBody> call = client.getResponse("/search/users?access_token=" + access_token + "&q=" + name + "%20in:login+type:org");
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull final Response<ResponseBody> response) {
+                    try {
+                        String result = Objects.requireNonNull(response.body()).string();
+                        getLoginFromJson(result);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    progressBar.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.request_failed), Toast.LENGTH_LONG).show();
+                }
+            });
+        } else
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.check_internet_connection), Toast.LENGTH_LONG).show();
+    }
+
+    private void getLoginFromJson(String result) {
         try {
             JSONObject jsonObject = new JSONObject(result);
             JSONArray jsonArray = jsonObject.getJSONArray("items");
 
-            int length = jsonArray.length() > 15 ? 15 : jsonArray.length();
+            int quantityOfAccounts = 15;
+            int length = jsonArray.length() > quantityOfAccounts ? quantityOfAccounts : jsonArray.length();
             for (int i = 0; i < length; i++) {
                 JSONObject jProduct = jsonArray.getJSONObject(i);
-                String name = jProduct.getString("login");
-                getDataOrg(name);
+                String login = jProduct.getString("login");
+                getDataOrg(login);
                 count++;
             }
         } catch (JSONException e) {
@@ -138,41 +155,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getDataOrg(final String name) {
+    private void getDataOrg(final String login) {
+        if (InternetConnection.checkConnection(getApplicationContext())) {
+            progressBar.setVisibility(View.VISIBLE);
+            Call<ResponseBody> call = client.getResponse("/users/" + login + "?access_token=" + access_token);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    try {
+                        String result = Objects.requireNonNull(response.body()).string();
+                        Gson gson = new GsonBuilder().create();
+                        Organization organization = gson.fromJson(result, Organization.class);
+                        allOrganizations.add(organization);
+                        progressBar.setVisibility(View.INVISIBLE);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-        String BASE_URL = "https://api.github.com";
+                    count--;
+                    if (count == 0) {
+                        AdapterGitHubRepo adapter = new AdapterGitHubRepo(MainActivity.this, allOrganizations);
+                        recyclerView.setAdapter(adapter);
+                        progressBar.setVisibility(View.GONE);
+                    }
+                }//onResponse
 
-        Retrofit client = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        GitHubClientInterface service = client.create(GitHubClientInterface.class);
-        String access_token = utils.restore(MainActivity.this);
-        Call<ResponseBody> call = service.getUser("/users/" + name + "?access_token=" + access_token);
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String result = response.body().string();
-                    Gson gson = new GsonBuilder().create();
-                    Organization organization = gson.fromJson(result, Organization.class);
-                    allOrganizations.add(organization);
-                    progressBar.setVisibility(View.INVISIBLE);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.request_failed), Toast.LENGTH_LONG).show();
+                    progressBar.setVisibility(View.GONE);
                 }
-                count--;
-                if (count == 0) {
-                    AdapterGitHubRepo adapter = new AdapterGitHubRepo(MainActivity.this, allOrganizations);
-                    recyclerView.setAdapter(adapter);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) { }
-        });
-    }
+            });
+        } else
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.check_internet_connection), Toast.LENGTH_LONG).show();
+    }//getDataOrg
 
     //	If user is not authorized we finish the main activity
     private void onLogout() {

@@ -13,7 +13,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Project Name"
+        android:text="@string/project_name"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,11 +28,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:inputType="textPersonName"
-        android:hint="GitHab repository"
+        android:hint="@string/githab_repository"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/idProgress" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list_item"
@@ -56,6 +56,6 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/editText" />
 
 </android.support.constraint.ConstraintLayout>

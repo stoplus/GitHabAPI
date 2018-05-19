@@ -51,7 +51,6 @@ public class AdapterGitHubRepo extends RecyclerView.Adapter<AdapterGitHubRepo.Vi
         return new ViewHolder(view);
     } // onCreateViewHolder
 
-    //внутрений класс ViewHolder для хранения элементов разметки
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textView)
         TextView name;
@@ -62,7 +61,6 @@ public class AdapterGitHubRepo extends RecyclerView.Adapter<AdapterGitHubRepo.Vi
         @BindView(R.id.idBlog)
         TextView blog;
 
-        // в конструкторе получаем ссылки на элементы по id
         private ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
@@ -71,6 +69,7 @@ public class AdapterGitHubRepo extends RecyclerView.Adapter<AdapterGitHubRepo.Vi
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        int position1 = holder.getAdapterPosition ();
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,66 +107,4 @@ public class AdapterGitHubRepo extends RecyclerView.Adapter<AdapterGitHubRepo.Vi
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imageView);
     }//onBindViewHolder
-    //=================================================================================================
-
-    public void deleteFromListAdapter(int pos) {
-        list.remove(pos);
-        notifyItemRemoved(pos);//обновляет после удаления Item на позиции position
-        notifyItemRangeChanged(pos, list.size());//обновляет позиции последующих элементов
-    }//deleteFromListAdapter
-
-    //=================================================================================================
-    // Filter Class
-    public void animateTo(List<Organization> models) {
-        applyAndAnimateRemovals(models);
-        applyAndAnimateAdditions(models);
-        applyAndAnimateMovedItems(models);
-    }//animateTo
-
-    //удаляем лишние Items
-    private void applyAndAnimateRemovals(List<Organization> newModels) {
-        for (int i = list.size() - 1; i >= 0; i--) {
-            final Organization model = list.get(i);
-            if (!newModels.contains(model)) {
-                removeItem(i);
-            }//if
-        }//for
-    }//applyAndAnimateRemovals
-
-    // добавляем Items
-    private void applyAndAnimateAdditions(List<Organization> newModels) {
-        for (int i = 0, count = newModels.size(); i < count; i++) {
-            final Organization model = newModels.get(i);
-            if (!list.contains(model)) {
-                addItem(i, model);
-            }//if
-        }//for
-    }//applyAndAnimateAdditions
-
-    //присваиваем новые позиции
-    private void applyAndAnimateMovedItems(List<Organization> newModels) {
-        for (int toPosition = newModels.size() - 1; toPosition >= 0; toPosition--) {
-            final Organization model = newModels.get(toPosition);
-            final int fromPosition = list.indexOf(model);
-            if (fromPosition >= 0 && fromPosition != toPosition) {
-                moveItem(fromPosition, toPosition);
-            }//if
-        }//for
-    }//applyAndAnimateMovedItems
-
-    private void removeItem(int position) {
-        list.remove(position);
-        notifyItemRemoved(position);//обновляем ресайклер при удалении Item
-    }//removeItem
-
-    private void addItem(int position, Organization model) {
-        list.add(position, model);
-        notifyItemInserted(position);//обновляем ресайклер при вставке Item
-    }//addItem
-
-    private void moveItem(int fromPosition, int toPosition) {
-        final Organization model = list.remove(fromPosition);
-        list.add(toPosition, model);
-        notifyItemMoved(fromPosition, toPosition);//обновляем ресайклер при перемещении Items
-    }//moveItem
-}//class Adapter
+}//class AdapterGitHubRepo

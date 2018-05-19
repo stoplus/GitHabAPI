@@ -14,4 +14,27 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+
+    <string name="check_internet_connection">Check your Internet connection!</string>
+    <string name="request_failed">The request failed!</string>
+    <string name="auth_success">Auth success. accessToken = </string>
+    <string name="error_auth">Error Auth with message: </string>
+
+    <string name="enter_client_secret">enter here client secret</string>
+    <string name="clientID">clientID</string>
+    <string name="request">Request!</string>
+    <string name="github">GitHub</string>
+    <string name="enter_client_id">enter here client Id</string>
+    <string name="redirect_url">redirectUrl</string>
+    <string name="enter_redirect_url">enter here redirect url</string>
+
+    <string name="project_name">Project Name</string>
+    <string name="githab_repository">GitHab repository</string>
+
+    <string name="avatar">avatar</string>
+
+    <string name="enter_date">Enter Client ID and Client Secret!</string>
+
+
 </resources>

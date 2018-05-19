@@ -2,13 +2,11 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical"
-    tools:context="com.github.andx2.oauthrunnersample.MainActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,15 +20,16 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="clientID"/>
+            android:gravity="end"
+            android:text="@string/clientID"/>
 
         <EditText
             android:id="@+id/et_client_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:hint="enter here client Id "/>
+            android:hint="@string/enter_client_id"
+            android:inputType="text" />
 
     </LinearLayout>
 
@@ -46,15 +45,16 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="redirectUrl"/>
+            android:gravity="end"
+            android:text="@string/redirect_url"/>
 
         <EditText
             android:id="@+id/et_redirect_url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:hint="enter here redirect url "/>
+            android:hint="@string/enter_redirect_url"
+            android:inputType="text|textUri" />
 
     </LinearLayout>
 
@@ -70,15 +70,16 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
             android:layout_weight="1"
-            android:gravity="right"
-            android:text="clientID"/>
+            android:gravity="end"
+            android:text="@string/enter_client_secret"/>
 
         <EditText
             android:id="@+id/et_client_secret"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:hint="enter here client secret "/>
+            android:hint="@string/enter_client_secret"
+            android:inputType="text" />
 
     </LinearLayout>
 
@@ -87,7 +88,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Request!"
+        android:text="@string/request"
         app:layout_constraintBottom_toBottomOf="@+id/activity_main"
         app:layout_constraintLeft_toLeftOf="@+id/activity_main"
         app:layout_constraintRight_toRightOf="@+id/activity_main"
@@ -97,7 +98,7 @@
         android:id="@+id/call_git"
         android:layout_width="80dp"
         android:layout_height="40dp"
-        android:text="GitHub"/>
+        android:text="@string/github"/>
 
 
 </LinearLayout>

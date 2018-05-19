@@ -21,12 +21,10 @@ public class AdapterRepo extends RecyclerView.Adapter<AdapterRepo.ViewHolder> {
 
     private LayoutInflater inflater;
     private List<GitHubRepo> list;
-    private Context context;
 
     public AdapterRepo(Context context, List<GitHubRepo> list) {
         this.inflater = LayoutInflater.from(context);
         this.list = new ArrayList<>(list);
-        this.context = context;
     }//Adapter
 
     @Override
@@ -46,7 +44,6 @@ public class AdapterRepo extends RecyclerView.Adapter<AdapterRepo.ViewHolder> {
         return new ViewHolder(view);
     } // onCreateViewHolder
 
-    //внутрений класс ViewHolder для хранения элементов разметки
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.textViewName)
         TextView textViewName;
@@ -55,7 +52,6 @@ public class AdapterRepo extends RecyclerView.Adapter<AdapterRepo.ViewHolder> {
         @BindView(R.id.lines)
         View lines;
 
-        // в конструкторе получаем ссылки на элементы по id
         private ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
@@ -67,4 +63,4 @@ public class AdapterRepo extends RecyclerView.Adapter<AdapterRepo.ViewHolder> {
         holder.textViewName.setText(list.get(position).getName());
         holder.textViewDescription.setText(list.get(position).getDescription());
     }//onBindViewHolder
-}
+}//class AdapterRepo

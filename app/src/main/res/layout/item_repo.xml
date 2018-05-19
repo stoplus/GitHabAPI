@@ -12,7 +12,6 @@
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:textStyle="bold"
-        android:text="Name"
         android:textSize="18sp" />
     <TextView
         android:id="@+id/textViewDescription"
@@ -21,14 +20,11 @@
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
-        android:text="Description"
         android:textSize="18sp" />
-
     <View
         android:id="@+id/lines"
         android:layout_width="wrap_content"
         android:layout_height="2dp"
-        android:layout_alignParentBottom="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="#e5e5e5" />

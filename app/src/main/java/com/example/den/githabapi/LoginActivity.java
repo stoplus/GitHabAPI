@@ -42,46 +42,46 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void callGitAuth() {
-        GitHubPlugin.Builder builder = new GitHubPlugin.Builder();
-//        builder.setClientId(etClientId.getText().toString());
-//        builder.setClientSecret(etClientSecret.getText().toString());
-//        builder.setRedirectUri(etRedirectUrl.getText().toString());
+        if (etClientId.getText().toString().isEmpty() || etClientSecret.getText().toString().isEmpty()) {
+            Toast.makeText(LoginActivity.this,
+                    getResources().getString(R.string.enter_date), Toast.LENGTH_LONG).show();
+        } else {
+            GitHubPlugin.Builder builder = new GitHubPlugin.Builder();
+            builder.setClientId(etClientId.getText().toString());
+            builder.setClientSecret(etClientSecret.getText().toString());
+            builder.setRedirectUri(etRedirectUrl.getText().toString());
 
-        builder.setClientId("345dd543b7024d008078");
-        builder.setClientSecret("2cd553cd26d08fd866fef46773fe441875cf37a5");
-        builder.setRedirectUri("");
+            GitHubPlugin plugin = builder.build();
+            Runner runner = new Runner(this, plugin);
+            runner.execute(new Runner.Callback() {
+                @Override
+                public void onSuccess(PluginResponse response) {
+                    GitHubPlugin.GitHubResponse gitHubResponse = (GitHubPlugin.GitHubResponse) response;
+                    Toast.makeText(LoginActivity.this,
+                            getResources().getString(R.string.auth_success)
+                                    + gitHubResponse.getAccessToken(), Toast.LENGTH_LONG).show();
 
-        GitHubPlugin plugin = builder.build();
-        Runner runner = new Runner(this, plugin);
-        runner.execute(new Runner.Callback() {
-            @Override
-            public void onSuccess(PluginResponse response) {
-                GitHubPlugin.GitHubResponse gitHubResponse = (GitHubPlugin.GitHubResponse) response;
-                Log.d("MainLogTag", "Auth success. accessToken = " + gitHubResponse.getAccessToken());
-                Toast.makeText(LoginActivity.this, "Auth success. accessToken = "
-                        + gitHubResponse.getAccessToken(), Toast.LENGTH_LONG).show();
+                    AuthorizationUtils utils = new AuthorizationUtils();
+                    utils.setAuthorized(LoginActivity.this);//устанавливаем флаг true в преференсах
+                    utils.access_token = gitHubResponse.getAccessToken();
+                    utils.save(LoginActivity.this);
+                    onLoginCompleted();//запуск активности
+                }
 
-                AuthorizationUtils utils = new AuthorizationUtils();
-                utils.setAuthorized(LoginActivity.this);//устанавливаем флаг true в преференсах
-                utils.access_token = gitHubResponse.getAccessToken();
-                utils.save(LoginActivity.this);
-                onLoginCompleted();//запуск активности
-            }
-
-            @Override
-            public void onFailure(String failureMessage) {
-                Log.d("MainLogTag", "Auth failure. Message = " + failureMessage);
-                Toast.makeText(LoginActivity.this, "Error Auth with message: " + failureMessage,
-                        Toast.LENGTH_LONG).show();
-            }
-        });
+                @Override
+                public void onFailure(String failureMessage) {
+                    Toast.makeText(LoginActivity.this,
+                            getResources().getString(R.string.error_auth) + failureMessage,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
-    //	запуск маинАктивити
+    //	start MainActivity
     private void onLoginCompleted() {
         Intent main = new Intent(this, MainActivity.class);
         startActivity(main);
-//        finish();
     }//onLoginCompleted
 
     @Override
